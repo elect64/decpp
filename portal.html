@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>DECRYPT 2.0 — Participant Portal</title>
+<meta name="description" content="Your personal DECRYPT 2.0 portal. Access your details, event information and certificate.">
+<meta name="theme-color" content="#F4F6EF" id="meta-theme-color">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="portal.css">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%2307220C'/%3E%3Ctext x='50' y='68' font-family='system-ui' font-size='50' font-weight='700' fill='%239CF0B0' text-anchor='middle'%3ED%3C/text%3E%3C/svg%3E">
+<base target="_blank">
+</head>
+<body>
+
+<!-- ============================================================
+     AMBIENT BACKGROUND — aurora blobs + grid + noise
+     ============================================================ -->
+<div class="bg" aria-hidden="true">
+  <div class="bg-aurora a1"></div>
+  <div class="bg-aurora a2"></div>
+  <div class="bg-aurora a3"></div>
+  <div class="bg-grid"></div>
+  <div class="bg-noise"></div>
+</div>
+
+<!-- ============================================================
+     GLOBAL THEME TOGGLE
+     ============================================================ -->
+<button class="theme-toggle" id="theme-toggle" aria-label="Switch colour theme" title="Switch theme">
+  <span class="theme-toggle-track">
+    <svg class="icon icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M4.9 19.1l1.7-1.7M17.4 6.6l1.7-1.7"/></svg>
+    <svg class="icon icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.4 14.2A8.5 8.5 0 0 1 9.8 3.6a8.5 8.5 0 1 0 10.6 10.6z"/></svg>
+    <span class="theme-toggle-thumb"></span>
+  </span>
+</button>
+
+<!-- ============================================================
+     CAMPAIGN ALERT BANNER
+     ============================================================ -->
+<div class="campaign-alert" id="campaign-alert" role="alert" aria-live="polite">
+  <div class="campaign-alert-inner">
+    <span class="campaign-alert-dot"></span>
+    <svg class="campaign-alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+    <span class="campaign-alert-msg" id="campaign-alert-msg">New message from DECRYPT — check your inbox.</span>
+    <button class="campaign-alert-close" id="campaign-alert-close" aria-label="Dismiss">✕</button>
+  </div>
+</div>
+
+<!-- ============================================================
+     AUTH GATE — split screen with live decrypt animation
+     ============================================================ -->
+<div class="auth-veil" id="auth-veil">
+  <div class="auth-stage">
+
+    <!-- Left: brand visual -->
+    <aside class="auth-visual">
+      <canvas class="auth-fx-canvas" id="auth-fx-canvas" aria-hidden="true"></canvas>
+      <div class="auth-visual-glow"></div>
+      <div class="auth-visual-content">
+        <div class="auth-brand">
+          <span class="auth-brand-dot"></span>
+          <span class="auth-brand-name">DECRYPT</span>
+          <span class="auth-brand-tag">2.0</span>
+        </div>
+        <h2 class="auth-visual-title"><span id="auth-scramble">CREATIVITY, WITH INTENTION.</span></h2>
+        <p class="auth-visual-sub">One portal for your registration, check-in QR, live event updates and certificate.</p>
+        <ul class="auth-visual-list">
+          <li><span class="tick">✓</span> Instant QR check-in</li>
+          <li><span class="tick">✓</span> Live announcements</li>
+          <li><span class="tick">✓</span> Certificate delivery</li>
+        </ul>
+      </div>
+      <p class="auth-visual-footer">OCT 2026 · PARTICIPANT PORTAL v2</p>
+    </aside>
+
+    <!-- Right: auth card -->
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="auth-header-row">
+          <div class="auth-brand compact">
+            <span class="auth-brand-dot"></span>
+            <span class="auth-brand-name">DECRYPT</span>
+          </div>
+          <span class="auth-live-pill"><span class="auth-live-dot"></span>SECURE</span>
+        </div>
+        <p class="auth-brand-sub">Participant Portal</p>
+      </div>
+
+      <div class="auth-body">
+        <h1 class="auth-title">Welcome back.</h1>
+        <p class="auth-desc">Enter your registered email and the access code from your confirmation email to continue.</p>
+
+        <div class="auth-form" id="auth-form">
+          <div class="auth-field">
+            <label for="auth-email">Email address</label>
+            <div class="auth-input-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m4 7 8 6 8-6"/></svg>
+              <input type="email" id="auth-email" placeholder="you@example.com" autocomplete="email" inputmode="email">
+            </div>
+          </div>
+          <div class="auth-field">
+            <label for="auth-code">Access code</label>
+            <div class="auth-input-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+              <input type="text" id="auth-code" class="mono" placeholder="DEC2.O-XXXXX" autocomplete="off" autocapitalize="characters" spellcheck="false">
+            </div>
+          </div>
+          <p class="auth-error" id="auth-error" role="alert"></p>
+          <button class="auth-btn btn-ripple" id="auth-btn">
+            <span id="auth-btn-label">Enter portal</span>
+            <span class="auth-btn-arrow">→</span>
+          </button>
+        </div>
+
+        <p class="auth-help">Lost your access code? Check your registration confirmation email or contact the DECRYPT team.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================
+     PORTAL SHELL
+     ============================================================ -->
+<div class="portal-shell" id="portal-shell" style="display:none">
+
+  <!-- Top bar -->
+  <header class="portal-topbar">
+    <div class="portal-topbar-inner">
+      <div class="portal-brand">
+        <span class="portal-brand-dot"></span>
+        <span class="portal-brand-name">DECRYPT</span>
+        <span class="portal-brand-tag">2.0</span>
+      </div>
+      <div class="portal-topbar-right">
+        <span class="portal-status-pill" id="portal-status-pill"></span>
+        <span class="portal-greeting" id="portal-greeting"></span>
+        <button class="portal-logout" id="portal-logout">Sign out</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Banner -->
+  <div class="portal-banner-wrap">
+    <canvas class="portal-banner-canvas" id="portal-banner-canvas" aria-hidden="true"></canvas>
+    <div class="portal-banner-scan" aria-hidden="true"></div>
+    <div class="portal-banner-fallback" id="portal-banner-fallback">
+      <div class="portal-banner-fallback-inner">
+        <p class="portal-banner-fallback-title">DECRYPT 2.0</p>
+        <p class="portal-banner-fallback-code" id="portal-banner-fallback-code"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nav tabs (desktop / tablet) -->
+  <nav class="portal-nav" aria-label="Portal sections">
+    <div class="portal-nav-inner" id="portal-nav-inner">
+      <span class="portal-nav-indicator" id="portal-nav-indicator"></span>
+      <button class="portal-nav-item active" data-tab="home">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Home</span>
+      </button>
+      <button class="portal-nav-item" data-tab="details">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        <span>My details</span>
+      </button>
+      <button class="portal-nav-item" data-tab="event">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        <span>Event info</span>
+      </button>
+      <button class="portal-nav-item" data-tab="qr">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h.01M18 14h.01M14 18h.01M18 18h.01M14 21h.01M18 21h.01M21 14h.01M21 18h.01"/></svg>
+        <span>My QR</span>
+      </button>
+      <button class="portal-nav-item" data-tab="certificate">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="6"/><path d="M9 14.5L7.5 22 12 19l4.5 3-1.5-7.5"/></svg>
+        <span>Certificate</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Tab content -->
+  <main class="portal-content">
+
+    <!-- HOME -->
+    <section class="portal-tab active" id="tab-home">
+      <div class="portal-section-inner">
+        <div class="home-welcome reveal">
+          <p class="eyebrow">Participant overview</p>
+          <h2 class="home-title" id="home-title">Good to see you.</h2>
+          <p class="home-sub" id="home-sub">Here's a quick look at where things stand for you.</p>
+        </div>
+        <div class="home-cards" id="home-cards"></div>
+        <div class="home-quick" id="home-quick"></div>
+      </div>
+    </section>
+
+    <!-- MY DETAILS -->
+    <section class="portal-tab" id="tab-details">
+      <div class="portal-section-inner">
+        <div class="section-head reveal">
+          <p class="eyebrow">On file</p>
+          <h2>My registration</h2>
+          <p class="section-sub">Everything we have on file for you.</p>
+        </div>
+        <div class="details-grid" id="details-grid"></div>
+      </div>
+    </section>
+
+    <!-- EVENT INFO -->
+    <section class="portal-tab" id="tab-event">
+      <div class="portal-section-inner">
+        <div class="section-head reveal">
+          <p class="eyebrow">DECRYPT 2.0</p>
+          <h2>Event information</h2>
+          <p class="section-sub">Everything you need for the day.</p>
+        </div>
+        <div id="event-info-body"></div>
+      </div>
+    </section>
+
+    <!-- MY QR -->
+    <section class="portal-tab" id="tab-qr">
+      <div class="portal-section-inner">
+        <div class="section-head reveal">
+          <p class="eyebrow">Check-in</p>
+          <h2>My QR code</h2>
+          <p class="section-sub">Show this at check-in or let the scanner read it from your screen.</p>
+        </div>
+        <div class="qr-wrap" id="qr-wrap">
+          <div class="qr-box" id="qr-box">
+            <span class="qr-corner tl"></span><span class="qr-corner tr"></span>
+            <span class="qr-corner bl"></span><span class="qr-corner br"></span>
+            <img class="qr-img" id="qr-img" alt="Your access QR code">
+            <button class="qr-code-label mono" id="qr-code-label" title="Tap to copy"></button>
+          </div>
+          <button class="qr-download-btn btn-ripple" id="qr-download-btn">Download QR code</button>
+          <p class="qr-hint">Save this to your photos so you always have it handy — even offline.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CERTIFICATE -->
+    <section class="portal-tab" id="tab-certificate">
+      <div class="portal-section-inner">
+        <div class="section-head reveal">
+          <p class="eyebrow">Recognition</p>
+          <h2>My certificate</h2>
+          <p class="section-sub">Issued after DECRYPT 2.0 closes.</p>
+        </div>
+        <div id="cert-body"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="portal-footer">
+    <p>DECRYPT 2.0 · Creativity With Intention.</p>
+  </footer>
+
+  <!-- Mobile bottom navigation -->
+  <nav class="portal-bottomnav" aria-label="Portal sections mobile">
+    <button class="bnav-item active" data-tab="home">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Home</span>
+    </button>
+    <button class="bnav-item" data-tab="details">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      <span>Details</span>
+    </button>
+    <button class="bnav-item" data-tab="event">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      <span>Event</span>
+    </button>
+    <button class="bnav-item" data-tab="qr">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h.01M18 14h.01M14 18h.01M18 18h.01"/></svg>
+      <span>My QR</span>
+    </button>
+    <button class="bnav-item" data-tab="certificate">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="6"/><path d="M9 14.5L7.5 22 12 19l4.5 3-1.5-7.5"/></svg>
+      <span>Cert</span>
+    </button>
+  </nav>
+
+</div>
+
+<div id="toast" class="portal-toast" role="status" aria-live="polite"></div>
+
+<script src="portal.js"></script>
+</body>
+</html>
+
+
+<script>
+
+/* ==========================================================
+   DECRYPT 2.0 PARTICIPANT PORTAL — portal.js v2
+   Same API contract as v1, upgraded experience:
+   theming, decrypt-rain auth canvas, scramble text, sliding
+   nav indicator, bottom nav, tilt, ripples, reveal-on-scroll.
+   ========================================================== */
+
+/* ---------- CONFIG ---------- */
+var API = 'https://script.google.com/macros/s/AKfycbzpY3k1XeaupRUcYmCoNwYPh_W8jBGzjXGyOO-S55azpkz2w_5Ag8MuFmN6LlHSQ9ZRFg/exec';
+
+/* Banner image path — update to your actual banner file.
+   Leave as empty string '' to use the animated CSS fallback. */
+var BANNER_IMAGE_URL = 'https://i.ibb.co/8LRPsBGw/dec-pbp.png';
+
+var CAMPAIGN_POLL_INTERVAL = 60000; // ms
+
+/* ---------- STATE ---------- */
+var SESSION_KEY  = 'dcmd_portal_session';
+var CAMPAIGN_KEY = 'dcmd_portal_last_campaign';
+var THEME_KEY    = 'dcmd_theme';
+var _participant = null;
+var _campaignTimer = null;
+var _reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var _finePointer  = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+/* ==========================================================
+   UTILITIES
+   ========================================================== */
+function esc(s) {
+  if (s === null || s === undefined) return '';
+  return String(s).replace(/[&<>"']/g, function (c) {
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+
+function cssVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+function toast(msg) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(function () { el.classList.remove('show'); }, 2800);
+}
+
+function apiFetch(params) {
+  var qs = Object.keys(params).map(function (k) {
+    return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+  }).join('&');
+  return fetch(API + '?' + qs).then(function (r) {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  });
+}
+
+function pill(text, type) {
+  return '<span class="pill pill-' + (type || 'neutral') + '"><span class="pill-dot"></span>' + esc(text) + '</span>';
+}
+
+/* Text scramble — terminal-style decrypt reveal */
+function scramble(el, finalText) {
+  if (_reduceMotion || !el) { if (el) el.textContent = finalText; return; }
+  var chars = '!<>-_/[]{}=+*^?#ABCDEFGHKMNPQRSTUVWXYZ0123456789';
+  var frame = 0;
+  var queue = finalText.split('').map(function (ch, i) {
+    return { ch: ch, start: i * 1.6 + Math.random() * 6, end: i * 1.6 + 8 + Math.random() * 14 };
+  });
+  clearInterval(el._scr);
+  el._scr = setInterval(function () {
+    var out = '', done = 0;
+    queue.forEach(function (q) {
+      if (frame >= q.end) { done++; out += q.ch; }
+      else if (frame >= q.start) { out += chars[(Math.random() * chars.length) | 0]; }
+      else { out += q.ch === ' ' ? ' ' : ''; }
+    });
+    el.textContent = out;
+    frame++;
+    if (done === queue.length) clearInterval(el._scr);
+  }, 28);
+}
+
+/* Reveal-on-scroll */
+var _revealIO = ('IntersectionObserver' in window) ? new IntersectionObserver(function (entries) {
+  entries.forEach(function (e) {
+    if (e.isIntersecting) { e.target.classList.add('in'); _revealIO.unobserve(e.target); }
+  });
+}, { threshold: 0.1 }) : null;
+
+function observeReveals(scope) {
+  var els = (scope || document).querySelectorAll('.reveal:not(.in)');
+  for (var i = 0; i < els.length; i++) {
+    if (_revealIO) _revealIO.observe(els[i]); else els[i].classList.add('in');
+  }
+}
+
+/* Click ripple */
+document.addEventListener('click', function (e) {
+  var b = e.target.closest('.btn-ripple, .auth-btn, .home-quick-item, .bnav-item, .portal-nav-item, .qr-download-btn, .event-join-btn, .cert-download-btn, .theme-toggle');
+  if (!b || _reduceMotion) return;
+  var rect = b.getBoundingClientRect();
+  var d = Math.max(rect.width, rect.height) * 1.1;
+  var r = document.createElement('span');
+  r.className = 'ripple';
+  r.style.width = r.style.height = d + 'px';
+  r.style.left = (e.clientX - rect.left - d / 2) + 'px';
+  r.style.top  = (e.clientY - rect.top  - d / 2) + 'px';
+  var cs = getComputedStyle(b);
+  if (cs.position === 'static') b.style.position = 'relative';
+  if (cs.overflow === 'visible') b.style.overflow = 'hidden';
+  b.appendChild(r);
+  setTimeout(function () { r.remove(); }, 680);
+});
+
+/* Subtle 3D tilt on fine pointers */
+function bindTilt(el, maxDeg) {
+  if (!_finePointer || _reduceMotion || !el) return;
+  maxDeg = maxDeg || 7;
+  el.addEventListener('pointermove', function (e) {
+    var rect = el.getBoundingClientRect();
+    var px = (e.clientX - rect.left) / rect.width  - 0.5;
+    var py = (e.clientY - rect.top)  / rect.height - 0.5;
+    el.style.transform = 'perspective(700px) rotateY(' + (px * maxDeg) + 'deg) rotateX(' + (-py * maxDeg) + 'deg) translateY(-2px)';
+    el.style.transition = 'transform 60ms linear';
+  });
+  el.addEventListener('pointerleave', function () {
+    el.style.transform = '';
+    el.style.transition = 'transform 420ms cubic-bezier(0.16,1,0.3,1)';
+  });
+}
+
+/* ==========================================================
+   THEME
+   ========================================================== */
+var Theme = (function () {
+  var KEY = THEME_KEY;
+
+  function apply(theme, persist) {
+    document.documentElement.setAttribute('data-theme', theme);
+    var meta = document.getElementById('meta-theme-color');
+    if (meta) meta.setAttribute('content', theme === 'dark' ? '#060A07' : '#F4F6EF');
+    if (persist !== false) {
+      try { localStorage.setItem(KEY, theme); } catch (e) {}
+    }
+    window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: theme } }));
+  }
+
+  function init() {
+    var saved = null;
+    try { saved = localStorage.getItem(KEY); } catch (e) {}
+    var mq = window.matchMedia('(prefers-color-scheme: dark)');
+    apply(saved || (mq.matches ? 'dark' : 'light'), false);
+
+    mq.addEventListener('change', function (e) {
+      var cur = null;
+      try { cur = localStorage.getItem(KEY); } catch (err) {}
+      if (!cur) apply(e.matches ? 'dark' : 'light', false);
+    });
+
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.addEventListener('click', function () {
+      var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      apply(next);
+      toast(next === 'dark' ? 'Dark mode on' : 'Light mode on');
+    });
+  }
+
+  return { init: init, apply: apply };
+})();
+
+/* ==========================================================
+   AUTH FX — decrypt rain canvas on the brand panel
+   ========================================================== */
+var AuthFX = (function () {
+  var canvas, ctx, cols, drops, raf = null, running = false;
+  var GLYPHS = 'DECRYPT2.0<>/\\|#%&$@=+*'.split('');
+
+  function size() {
+    if (!canvas) return;
+    var parent = canvas.parentElement;
+    canvas.width  = parent.clientWidth  * (window.devicePixelRatio > 1 ? 1.5 : 1);
+    canvas.height = parent.clientHeight * (window.devicePixelRatio > 1 ? 1.5 : 1);
+    cols = Math.floor(canvas.width / 18);
+    drops = [];
+    for (var i = 0; i < cols; i++) drops[i] = Math.random() * -40;
+  }
+
+  function draw() {
+    if (!running) return;
+    var color = cssVar('--accent-light') || '#9CF0B0';
+    ctx.fillStyle = 'rgba(0,0,0,0.08)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.font = '13px "JetBrains Mono", monospace';
+    for (var i = 0; i < cols; i++) {
+      var ch = GLYPHS[(Math.random() * GLYPHS.length) | 0];
+      var x = i * 18, y = drops[i] * 18;
+      ctx.fillStyle = Math.random() > 0.975 ? '#FFFFFF' : color;
+      ctx.globalAlpha = 0.9;
+      ctx.fillText(ch, x, y);
+      ctx.globalAlpha = 1;
+      if (y > canvas.height && Math.random() > 0.976) drops[i] = 0;
+      drops[i]++;
+    }
+    raf = requestAnimationFrame(draw);
+  }
+
+  function start() {
+    if (_reduceMotion) return;
+    canvas = document.getElementById('auth-fx-canvas');
+    if (!canvas) return;
+    ctx = canvas.getContext('2d');
+    size();
+    running = true;
+    cancelAnimationFrame(raf);
+    draw();
+    window.addEventListener('resize', size);
+  }
+
+  function stop() {
+    running = false;
+    cancelAnimationFrame(raf);
+  }
+
+  return { start: start, stop: stop };
+})();
+
+/* ==========================================================
+   AUTH
+   ========================================================== */
+var Auth = (function () {
+  function init() {
+    var saved = sessionStorage.getItem(SESSION_KEY);
+    if (saved) {
+      try {
+        _participant = JSON.parse(saved);
+        showPortal();
+        return;
+      } catch (e) {
+        sessionStorage.removeItem(SESSION_KEY);
+      }
+    }
+    AuthFX.start();
+    var scr = document.getElementById('auth-scramble');
+    if (scr) scramble(scr, scr.textContent);
+    bindAuthForm();
+  }
+
+  function bindAuthForm() {
+    var btn   = document.getElementById('auth-btn');
+    var label = document.getElementById('auth-btn-label');
+    var err   = document.getElementById('auth-error');
+    var codeInput = document.getElementById('auth-code');
+
+    codeInput.addEventListener('input', function () {
+      var pos = codeInput.selectionStart;
+      codeInput.value = codeInput.value.toUpperCase();
+      codeInput.setSelectionRange(pos, pos);
+    });
+
+    function attempt() {
+      var email = document.getElementById('auth-email').value.trim().toLowerCase();
+      var code  = codeInput.value.trim().toUpperCase();
+      if (!email || !code) {
+        err.textContent = 'Please enter both your email and access code.';
+        return;
+      }
+      btn.disabled = true;
+      label.textContent = 'Checking…';
+      err.textContent = '';
+
+      apiFetch({ action: 'portal_auth', email: email, code: code })
+        .then(function (d) {
+          if (d.ok) {
+            _participant = d.participant;
+            sessionStorage.setItem(SESSION_KEY, JSON.stringify(_participant));
+            AuthFX.stop();
+            showPortal();
+          } else {
+            label.textContent = 'Enter portal';
+            btn.disabled = false;
+            err.textContent = d.error || 'Email and access code do not match. Please check and try again.';
+            var field = document.getElementById('auth-form');
+            field.classList.add('shake');
+            setTimeout(function () { field.classList.remove('shake'); }, 420);
+          }
+        })
+        .catch(function () {
+          label.textContent = 'Enter portal';
+          btn.disabled = false;
+          err.textContent = 'Could not reach the server. Please try again.';
+        });
+    }
+
+    btn.addEventListener('click', attempt);
+    document.getElementById('auth-email').addEventListener('keydown', function (e) { if (e.key === 'Enter') codeInput.focus(); });
+    codeInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') attempt(); });
+  }
+
+  function logout() {
+    sessionStorage.removeItem(SESSION_KEY);
+    _participant = null;
+    if (_campaignTimer) clearInterval(_campaignTimer);
+    document.getElementById('portal-shell').style.display = 'none';
+    var veil = document.getElementById('auth-veil');
+    veil.style.display = '';
+    document.getElementById('auth-email').value = '';
+    document.getElementById('auth-code').value = '';
+    document.getElementById('auth-btn-label').textContent = 'Enter portal';
+    document.getElementById('auth-btn').disabled = false;
+    document.getElementById('auth-error').textContent = '';
+    AuthFX.start();
+    var scr = document.getElementById('auth-scramble');
+    if (scr) scramble(scr, 'CREATIVITY, WITH INTENTION.');
+    document.getElementById('auth-email').focus();
+  }
+
+  return { init: init, logout: logout };
+})();
+
+/* ==========================================================
+   NAV — sliding indicator + desktop/mobile sync
+   ========================================================== */
+function positionNavIndicator() {
+  var ind = document.getElementById('portal-nav-indicator');
+  if (!ind) return;
+  var active = document.querySelector('.portal-nav-inner .portal-nav-item.active');
+  if (!active) { ind.style.width = '0px'; return; }
+  ind.style.width = active.offsetWidth - 22 + 'px';
+  ind.style.transform = 'translateX(' + (active.offsetLeft + 11) + 'px)';
+}
+
+function activateTab(tab) {
+  document.querySelectorAll('.portal-nav-item, .bnav-item').forEach(function (b) {
+    b.classList.toggle('active', b.dataset.tab === tab);
+  });
+  document.querySelectorAll('.portal-tab').forEach(function (t) {
+    t.classList.toggle('active', t.id === 'tab-' + tab);
+  });
+  positionNavIndicator();
+  observeReveals(document.getElementById('tab-' + tab));
+  if (window.innerWidth <= 760) window.scrollTo({ top: 0, behavior: _reduceMotion ? 'auto' : 'smooth' });
+}
+
+function bindNav() {
+  document.querySelectorAll('.portal-nav-item, .bnav-item').forEach(function (btn) {
+    btn.addEventListener('click', function () { activateTab(this.dataset.tab); });
+  });
+  window.addEventListener('resize', positionNavIndicator);
+  window.addEventListener('load', positionNavIndicator);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(positionNavIndicator);
+}
+
+/* ==========================================================
+   BANNER — canvas compositing + scanline overlay
+   ========================================================== */
+function renderBanner(code) {
+  var canvas   = document.getElementById('portal-banner-canvas');
+  var fallback = document.getElementById('portal-banner-fallback');
+  var fallCode = document.getElementById('portal-banner-fallback-code');
+
+  if (fallCode) fallCode.textContent = code;
+
+  if (!BANNER_IMAGE_URL) {
+    canvas.style.display = 'none';
+    fallback.classList.add('active');
+    return;
+  }
+
+  var img = new Image();
+  img.crossOrigin = 'anonymous';
+
+  img.onload = function () {
+    var W = canvas.parentElement.offsetWidth || 640;
+    var scale = W / img.naturalWidth;
+    var H = img.naturalHeight * scale;
+
+    canvas.width  = W;
+    canvas.height = H;
+    canvas.style.display = 'block';
+    fallback.classList.remove('active');
+
+    var ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, W, H);
+
+    /* Vignette for legibility */
+    var vg = ctx.createRadialGradient(W / 2, H / 2, H * 0.2, W / 2, H / 2, W * 0.7);
+    vg.addColorStop(0, 'rgba(0,0,0,0.18)');
+    vg.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = vg;
+    ctx.fillRect(0, 0, W, H);
+
+    /* Access code overlay */
+    var fontSize = Math.round(Math.max(14, W * 0.028));
+    ctx.font = '700 ' + fontSize + 'px "JetBrains Mono", ui-monospace, monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.shadowColor = 'rgba(0,0,0,0.55)';
+    ctx.shadowBlur = 12;
+    ctx.globalAlpha = 0.92;
+    ctx.fillStyle = cssVar('--banner-code') || '#FFFFFF';
+    ctx.fillText(code, W / 2, H / 2);
+    ctx.globalAlpha = 1;
+    ctx.shadowBlur = 0;
+  };
+
+  img.onerror = function () {
+    canvas.style.display = 'none';
+    fallback.classList.add('active');
+  };
+
+  img.src = BANNER_IMAGE_URL;
+}
+
+/* ==========================================================
+   PORTAL
+   ========================================================== */
+function showPortal() {
+  document.getElementById('auth-veil').style.display = 'none';
+  document.getElementById('portal-shell').style.display = '';
+
+  var p = _participant;
+  var firstName = (p.name || '').split(' ')[0];
+  document.getElementById('portal-greeting').textContent = 'Hi, ' + firstName;
+
+  var checkedIn = p.status === 'CHECKED_IN';
+  document.getElementById('portal-status-pill').innerHTML =
+    pill(checkedIn ? 'Checked in' : 'Registered', checkedIn ? 'green' : 'amber');
+
+  document.getElementById('portal-logout').addEventListener('click', Auth.logout);
+
+  renderBanner(p.code);
+  renderHome(p);
+  renderDetails(p);
+  renderQR(p);
+  renderCertificate(p);
+
+  bindNav();
+  fetchEventInfo();
+  startCampaignPolling();
+  observeReveals(document);
+
+  /* Redraw banner on theme switch so the code colour matches */
+  window.addEventListener('themechange', function () {
+    if (_participant) renderBanner(_participant.code);
+  });
+}
+
+/* ==========================================================
+   HOME TAB
+   ========================================================== */
+function renderHome(p) {
+  var checkedIn = p.status === 'CHECKED_IN';
+
+  scramble(document.getElementById('home-title'), 'Good to see you, ' + firstNameOf(p) + '.');
+  document.getElementById('home-sub').textContent = checkedIn
+    ? "You're checked in to DECRYPT 2.0. Here's your overview."
+    : "DECRYPT 2.0 is coming. Here's your overview.";
+
+  document.getElementById('home-cards').innerHTML = [
+    { label: 'Track',       value: p.track || '—' },
+    { label: 'Check-in',    value: checkedIn ? '✓ Done' : 'Pending' },
+    { label: 'Certificate', value: p.certStatus || 'Pending' }
+  ].map(function (c) {
+    return '<div class="home-card"><div class="home-card-label">' + esc(c.label) + '</div>' +
+      '<div class="home-card-value">' + esc(c.value) + '</div></div>';
+  }).join('');
+
+  document.getElementById('home-quick').innerHTML = [
+    { tab: 'details', icon: '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>',
+      label: 'My registration details', meta: 'View everything we have on file' },
+    { tab: 'event', icon: '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
+      label: 'Event information', meta: 'Schedule, joining link and announcements' },
+    { tab: 'qr', icon: '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h.01M18 14h.01M14 18h.01M18 18h.01"/></svg>',
+      label: 'My QR code', meta: 'For check-in at the event' },
+    { tab: 'certificate', icon: '<svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="6"/><path d="M9 14.5L7.5 22 12 19l4.5 3-1.5-7.5"/></svg>',
+      label: 'Certificate', meta: p.certStatus === 'Sent' ? 'Ready to download' : 'Issued after the event' }
+  ].map(function (q) {
+    return '<button class="home-quick-item" data-tab="' + q.tab + '">' +
+      q.icon +
+      '<div style="flex:1;min-width:0"><div class="home-quick-label">' + esc(q.label) + '</div>' +
+      '<div class="home-quick-meta">' + esc(q.meta) + '</div></div>' +
+      '<span class="home-quick-arrow">›</span></button>';
+  }).join('');
+
+  document.querySelectorAll('.home-quick-item').forEach(function (btn) {
+    btn.addEventListener('click', function () { activateTab(this.dataset.tab); });
+  });
+}
+
+function firstNameOf(p) { return (p.name || '').split(' ')[0] || 'there'; }
+
+/* ==========================================================
+   MY DETAILS TAB
+   ========================================================== */
+function renderDetails(p) {
+  var checkedIn = p.status === 'CHECKED_IN';
+  var fields = [
+    { key: 'Full name',       val: p.name },
+    { key: 'Email',           val: p.email },
+    { key: 'Phone',           val: p.phone || '—' },
+    { key: 'Location',        val: p.location || '—' },
+    { key: 'I am mainly a',   val: p.identity || '—' },
+    { key: 'Track',           val: p.track || '—' },
+    { key: 'Volunteering',    val: p.volunteer || 'No' },
+    { key: 'Heard via',       val: p.source || '—' },
+    { key: 'Registered',      val: p.registeredAt ? new Date(p.registeredAt).toLocaleDateString(undefined, { year:'numeric', month:'long', day:'numeric' }) : '—' },
+    { key: 'Access code',     val: p.code, mono: true },
+    { key: 'Check-in status', val: checkedIn ? 'Checked in' : 'Not yet arrived', statusType: checkedIn ? 'green' : 'amber' },
+    { key: 'Check-in time',   val: p.checkinTime ? new Date(p.checkinTime).toLocaleString() : '—' },
+    { key: 'Certificate',     val: p.certStatus || 'Pending', statusType: p.certStatus === 'Sent' ? 'green' : 'neutral' }
+  ];
+
+  document.getElementById('details-grid').innerHTML = fields.map(function (f) {
+    var valHtml;
+    if (f.statusType) valHtml = pill(f.val, f.statusType);
+    else if (f.mono)  valHtml = '<span class="mono" style="font-size:0.84rem;letter-spacing:0.06em;color:var(--accent-mid);font-weight:500">' + esc(f.val) + '</span>';
+    else valHtml = esc(f.val);
+    return '<div class="detail-row"><span class="detail-key">' + esc(f.key) + '</span><span class="detail-val">' + valHtml + '</span></div>';
+  }).join('');
+}
+
+/* ==========================================================
+   EVENT INFO TAB
+   ========================================================== */
+function fetchEventInfo() {
+  var body = document.getElementById('event-info-body');
+  body.innerHTML = '<div class="skel" style="height:130px;"></div>';
+
+  apiFetch({ action: 'get_event_info' })
+    .then(function (d) {
+      if (!d || d.ok === false) {
+        body.innerHTML = '<div class="event-empty">Event details will appear here soon.</div>';
+        return;
+      }
+      renderEventInfo(d);
+    })
+    .catch(function () {
+      body.innerHTML = '<div class="event-empty">Couldn\'t load event information — please try again later.</div>';
+    });
+}
+
+function renderEventInfo(d) {
+  var body = document.getElementById('event-info-body');
+  var html = '';
+
+  if (d.joiningLink) {
+    html += '<div class="event-join-block">' +
+      '<div><div class="event-join-label">Join DECRYPT WhatsApp Community</div>' +
+      '<div class="event-join-text">Click to join for event info and updates</div></div>' +
+      '<a class="event-join-btn" href="' + esc(d.joiningLink) + '" target="_blank" rel="noopener">Join now →</a>' +
+      '</div>';
+  }
+
+  if (d.announcement) {
+    html += '<div class="event-announcement">' +
+      '<span class="event-announcement-dot"></span>' +
+      '<div class="event-announcement-text">' + esc(d.announcement) + '</div>' +
+      '</div>';
+  }
+
+  if (d.doorsOpen) {
+    html += '<div class="event-block"><div class="event-block-title">' +
+      '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Doors open' +
+      '</div><div class="event-block-body">' + esc(d.doorsOpen) + '</div></div>';
+  }
+
+  if (d.schedule) {
+    html += '<div class="event-block"><div class="event-block-title">' +
+      '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Schedule' +
+      '</div><div class="event-block-body">' + esc(d.schedule) + '</div></div>';
+  }
+
+  if (!html) html = '<div class="event-empty">Event details will appear here closer to October 2026.</div>';
+
+  if (d.lastUpdated) {
+    html += '<p class="label" style="margin-top:16px;">Last updated ' + esc(new Date(d.lastUpdated).toLocaleDateString()) + '</p>';
+  }
+
+  body.innerHTML = html;
+}
+
+/* ==========================================================
+   QR TAB
+   ========================================================== */
+function renderQR(p) {
+  var qrUrl = 'https://quickchart.io/qr?text=' + encodeURIComponent(p.code) +
+              '&size=240&margin=1&dark=07220C&light=FFFFFF';
+  document.getElementById('qr-img').src = qrUrl;
+  document.getElementById('qr-img').alt = 'QR code for ' + p.code;
+
+  var labelBtn = document.getElementById('qr-code-label');
+  labelBtn.textContent = p.code;
+  labelBtn.addEventListener('click', function () {
+    var done = function () { toast('Access code copied to clipboard'); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(p.code).then(done, done);
+    } else {
+      var ta = document.createElement('textarea');
+      ta.value = p.code; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta); done();
+    }
+  });
+
+  bindTilt(document.getElementById('qr-box'), 8);
+
+  document.getElementById('qr-download-btn').addEventListener('click', function () {
+    var a = document.createElement('a');
+    a.href = qrUrl;
+    a.download = 'DECRYPT-QR-' + p.code + '.png';
+    a.target = '_blank';
+    a.rel = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    toast('QR code downloading…');
+  });
+}
+
+/* ==========================================================
+   CERTIFICATE TAB
+   ========================================================== */
+function renderCertificate(p) {
+  var body = document.getElementById('cert-body');
+  var status = p.certStatus || '';
+
+  if (status === 'Sent' && p.certUrl) {
+    body.innerHTML = '<div class="cert-ready">' +
+      '<div class="cert-preview-box">' +
+      '<p class="label" style="margin-bottom:10px;">DECRYPT 2.0 Certificate</p>' +
+      '<p style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;">' + esc(p.name) + '</p>' +
+      '<p style="font-size:0.82rem;color:var(--text-secondary);margin-top:6px;">Awarded for participation in DECRYPT 2.0</p>' +
+      '</div>' +
+      '<a class="cert-download-btn btn-ripple" href="' + esc(p.certUrl) + '" target="_blank" rel="noopener" download>Download certificate →</a>' +
+      '<p class="qr-hint">Your certificate is a PDF. Save it or share it as you like.</p>' +
+      '</div>';
+  } else {
+    var subMsg = !p.checkinTime
+      ? 'Certificates are issued to participants who attended DECRYPT 2.0. Check back after the event.'
+      : "You're eligible. Your certificate is being prepared and will appear here once issued.";
+    body.innerHTML = '<div class="cert-placeholder">' +
+      '<svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="6"/><path d="M9 14.5L7.5 22 12 19l4.5 3-1.5-7.5"/></svg>' +
+      '<div class="cert-placeholder-title">Certificate pending</div>' +
+      '<div class="cert-placeholder-sub">' + esc(subMsg) + '</div>' +
+      '</div>';
+  }
+}
+
+/* ==========================================================
+   CAMPAIGN POLLING
+   ========================================================== */
+function startCampaignPolling() {
+  pollCampaigns();
+  _campaignTimer = setInterval(pollCampaigns, CAMPAIGN_POLL_INTERVAL);
+
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) {
+      clearInterval(_campaignTimer);
+    } else {
+      pollCampaigns();
+      _campaignTimer = setInterval(pollCampaigns, CAMPAIGN_POLL_INTERVAL);
+    }
+  });
+
+  document.getElementById('campaign-alert-close').addEventListener('click', hideCampaignAlert);
+}
+
+function pollCampaigns() {
+  apiFetch({ action: 'get_campaigns' })
+    .then(function (d) {
+      var campaigns = d.campaigns || [];
+      if (!campaigns.length) return;
+      var latest = campaigns[0];
+      var lastSeen = '';
+      try { lastSeen = localStorage.getItem(CAMPAIGN_KEY) || ''; } catch (e) {}
+      if (latest.id && latest.id !== lastSeen) {
+        showCampaignAlert('New message from DECRYPT — check your inbox.');
+        try { localStorage.setItem(CAMPAIGN_KEY, latest.id); } catch (e) {}
+      }
+    })
+    .catch(function () {}); /* silent */
+}
+
+function showCampaignAlert(msg) {
+  var alert = document.getElementById('campaign-alert');
+  document.getElementById('campaign-alert-msg').textContent = msg;
+  alert.classList.add('visible');
+  clearTimeout(showCampaignAlert._t);
+  showCampaignAlert._t = setTimeout(hideCampaignAlert, 8000);
+}
+
+function hideCampaignAlert() {
+  document.getElementById('campaign-alert').classList.remove('visible');
+}
+
+/* ==========================================================
+   BOOT
+   ========================================================== */
+Theme.init();
+Auth.init();
+
+</script>
