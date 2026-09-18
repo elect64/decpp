@@ -12,7 +12,7 @@
    ========================================================== */
 
 /* ---------- CONFIG ---------- */
-var API = 'https://script.google.com/macros/s/AKfycbzpY3k1XeaupRUcYmCoNwYPh_W8jBGzjXGyOO-S55azpkz2w_5Ag8MuFmN6LlHSQ9ZRFg/exec';
+var API = 'https://script.google.com/macros/s/AKfycbzVHb8xZQhAKIP7gwWy_GXJ_gRQjxmpOOHG-MMAeyb2x4KJBW3TN2HXC2TgcfGYHpCxyg/exec';
 
 /* Banner image path — update to your actual banner file.
    Leave as empty string '' to use the animated CSS fallback. */
