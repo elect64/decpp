@@ -12,7 +12,7 @@
    ========================================================== */
 
 /* ---------- CONFIG ---------- */
-var API = 'https://script.google.com/macros/s/AKfycbzVHb8xZQhAKIP7gwWy_GXJ_gRQjxmpOOHG-MMAeyb2x4KJBW3TN2HXC2TgcfGYHpCxyg/exec';
+var API = 'https://script.google.com/macros/s/AKfycbzFFb8ZWPFUdoInKKIcZ9D1mZif2cKwzdxOyfoMqk6z7_xLV3WBUFiHCT7AJZ-g8tTG8A/exec';
 
 /* Banner image path — update to your actual banner file.
    Leave as empty string '' to use the animated CSS fallback. */
@@ -571,11 +571,17 @@ function activateTab(tab) {
 
 function bindNav() {
   document.querySelectorAll('.portal-nav-item, .bnav-item').forEach(function (btn) {
+    if (btn.dataset.bound === 'nav') return;
+    btn.dataset.bound = 'nav';
     btn.addEventListener('click', function () { activateTab(this.dataset.tab); });
   });
-  window.addEventListener('resize', positionNavIndicator);
-  window.addEventListener('load', positionNavIndicator);
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(positionNavIndicator);
+
+  if (!window.__decryptNavBound) {
+    window.__decryptNavBound = true;
+    window.addEventListener('resize', positionNavIndicator);
+    window.addEventListener('load', positionNavIndicator);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(positionNavIndicator);
+  }
 }
 
 /* ==========================================================
@@ -1308,19 +1314,32 @@ var Progress = (function () {
 /* ==========================================================
    PORTAL
    ========================================================== */
-function showPortal() {
-  document.getElementById('auth-veil').style.display = 'none';
-  document.getElementById('portal-shell').style.display = '';
+function bindPortalShell() {
+  if (document.body && document.body.dataset.portalShellBound === '1') return;
+
+  var logoutBtn = document.getElementById('portal-logout');
+  if (logoutBtn) logoutBtn.addEventListener('click', Auth.logout);
+
+  window.addEventListener('themechange', function () {
+    if (_participant) renderBanner(_participant.code);
+  });
+
+  document.body.dataset.portalShellBound = '1';
+}
+
+function refreshPortal() {
+  if (!_participant) return;
 
   var p = _participant;
   var firstName = (p.name || '').split(' ')[0];
-  document.getElementById('portal-greeting').textContent = 'Hi, ' + firstName;
+  var portalGreeting = document.getElementById('portal-greeting');
+  if (portalGreeting) portalGreeting.textContent = 'Hi, ' + firstName;
 
   var checkedIn = p.status === 'CHECKED_IN';
-  document.getElementById('portal-status-pill').innerHTML =
-    pill(checkedIn ? 'Checked in' : 'Registered', checkedIn ? 'green' : 'amber');
-
-  document.getElementById('portal-logout').addEventListener('click', Auth.logout);
+  var statusPill = document.getElementById('portal-status-pill');
+  if (statusPill) {
+    statusPill.innerHTML = pill(checkedIn ? 'Checked in' : 'Registered', checkedIn ? 'green' : 'amber');
+  }
 
   renderBanner(p.code);
   renderHome(p);
@@ -1338,11 +1357,14 @@ function showPortal() {
   fetchEventInfo();
   startCampaignPolling();
   observeReveals(document);
+}
 
-  /* Redraw banner on theme switch so the code colour matches */
-  window.addEventListener('themechange', function () {
-    if (_participant) renderBanner(_participant.code);
-  });
+function showPortal() {
+  document.getElementById('auth-veil').style.display = 'none';
+  document.getElementById('portal-shell').style.display = '';
+
+  bindPortalShell();
+  refreshPortal();
 }
 
 /* ==========================================================
