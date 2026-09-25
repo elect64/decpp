@@ -40,8 +40,8 @@ var DECRYPT_FEATURES = {
 var DECRYPT_SESSIONS = [
   { id: 's1', title: 'Opening Session', speaker: 'DECRYPT Team',
     description: 'Welcome + keynote.',
-    link: '', startISO: '2026-10-17T18:00:00+01:00',
-    endISO: '2026-10-17T19:30:00+01:00' }
+    link: '', startISO: '2026-10-30T21:00:00+01:00',
+    endISO: '2026-10-30T22:30:00+01:00' }
   
 ];
 
