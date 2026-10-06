@@ -16,7 +16,7 @@ var API = 'https://script.google.com/macros/s/AKfycbxhx5PmRQ3bJdKLyW0Bia-t5b0dNc
 
 /* Banner image path — update to your actual banner file.
    Leave as empty string '' to use the animated CSS fallback. */
-var BANNER_IMAGE_URL = 'https://i.ibb.co/zTRTczB5/Decrypt-v2.png';
+var BANNER_IMAGE_URL = 'https://raw.githubusercontent.com/elect64/decrypt/main/assets/70_20261005_151537_0009.png';
 
 var CAMPAIGN_POLL_INTERVAL = 60000; // ms
 
